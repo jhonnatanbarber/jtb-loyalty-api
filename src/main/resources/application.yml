@@ -1,0 +1,122 @@
+quarkus:
+  application:
+    name: jtb-loyalty-api
+  http:
+    port: ${PORT:8081}
+    auth:
+      proactive: false
+    cors:
+      enabled: true
+      origins: ${CORS_ORIGINS:http://localhost:5173}
+      methods: GET,POST,PUT,DELETE,OPTIONS
+      headers: Authorization,Content-Type
+  smallrye-openapi:
+    security-scheme: jwt
+    security-scheme-name: bearerAuth
+  rest:
+    path: /api/v1/jtb
+  datasource:
+    db-kind: postgresql
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    jdbc:
+      url: ${DB_URL}
+      max-size: 5
+      min-size: 0                  # No mantiene conexiones abiertas si no hay uso
+      idle-removal-interval: 2M    # Cierra las conexiones inactivas a los 2 minutos
+      max-lifetime: 10M            # Renueva cada conexión a los 10 minutos
+  hibernate-orm:
+    schema-management:
+      strategy: none
+    validate-in-dev-mode: false
+    jdbc:
+      timezone: America/Lima
+  flyway:
+    migrate-at-start: true
+app:
+  security:
+    bcrypt-cost: 10
+    jwt:
+      issuer: jtb-loyalty-api
+      duration: PT5M
+      public-key: config/publicKey.pem
+      private-key: config/privateKey.pem
+  error-response:
+    description: "Se produjo un error técnico, contactar con soporte técnico"
+    component: ${quarkus.application.name}
+  errors:
+    INVALID_CREDENTIALS:
+      type: UNAUTHORIZED
+      code: AUTH001
+      message: "Usuario o contraseña incorrectos"
+    INVALID_USER:
+      type: VALIDATION
+      code: AUTH002
+      message: "Los datos del usuario no son válidos"
+    USER_NOT_FOUND:
+      type: NOT_FOUND
+      code: AUTH003
+      message: "El usuario no existe"
+    WRONG_CURRENT_PASSWORD:
+      type: UNAUTHORIZED
+      code: AUTH004
+      message: "La contraseña actual es incorrecta"
+    INVALID_CUSTOMER:
+      type: VALIDATION
+      code: CUS001
+      message: "Los datos del cliente no son válidos"
+    CUSTOMER_NOT_FOUND:
+      type: NOT_FOUND
+      code: CUS002
+      message: "El cliente no existe"
+    PHONE_ALREADY_REGISTERED:
+      type: CONFLICT
+      code: CUS003
+      message: "Ya existe un cliente con ese celular"
+    CARD_NOT_FOUND:
+      type: NOT_FOUND
+      code: CRD001
+      message: "La tarjeta no existe"
+    CARD_FULL:
+      type: BUSINESS_RULE
+      code: CRD002
+      message: "La tarjeta ya tiene los 10 sellos"
+    CARD_NOT_ACTIVE:
+      type: BUSINESS_RULE
+      code: CRD003
+      message: "La tarjeta ya está cerrada"
+    UNDO_NOT_ALLOWED:
+      type: BUSINESS_RULE
+      code: CRD004
+      message: "Ya no se puede deshacer el último sello"
+    REWARD_NOT_FOUND:
+      type: NOT_FOUND
+      code: RWD001
+      message: "El premio no existe"
+    REWARD_NOT_AVAILABLE:
+      type: BUSINESS_RULE
+      code: RWD002
+      message: "El premio aún no está disponible o ya fue canjeado"
+    VALIDATION_ERROR:
+      type: VALIDATION
+      code: GEN001
+      message: "Hay datos inválidos en la solicitud"
+    MALFORMED_BODY:
+      type: VALIDATION
+      code: GEN002
+      message: "El cuerpo de la solicitud no es válido"
+    INTERNAL_ERROR:
+      type: INTERNAL
+      code: GEN999
+      message: "Ocurrió un error inesperado"
+mp:
+  jwt:
+    verify:
+      issuer: ${app.security.jwt.issuer}
+      publickey:
+        location: ${app.security.jwt.public-key}
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: ${app.security.jwt.private-key}

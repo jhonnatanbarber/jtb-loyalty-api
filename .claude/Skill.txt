@@ -1,0 +1,38 @@
+Refactoriza los tests unitarios del proyecto para que usen JUnit 5 + Mockito puro,
+sin arrancar Quarkus.
+
+Alcance:
+- Revisa todas las clases en src/test/java.
+- Convierte SOLO los tests de lógica: casos de uso (application), dominio (domain),
+  mappers y servicios que no necesiten base de datos ni HTTP.
+- NO conviertas tests que prueben endpoints con RestAssured, repositorios Panache contra
+  la base de datos, ni configuración de Quarkus. Esos deben seguir con @QuarkusTest.
+  Si encuentras alguno, déjalo como está y menciónalo al final.
+
+Reglas para cada test convertido:
+1. Quita @QuarkusTest y agrega @ExtendWith(MockitoExtension.class).
+2. Reemplaza @InjectMock por @Mock (org.mockito.Mock).
+3. Reemplaza @Inject de la clase bajo prueba por @InjectMocks.
+4. Si la clase bajo prueba tiene un método @PostConstruct, llámalo a mano en un
+   @BeforeEach, porque Mockito no lo ejecuta.
+5. Usa AssertJ (assertThat, assertThatThrownBy), no los asserts de JUnit.
+6. Con MockitoExtension los stubs son estrictos: elimina cualquier when(...) que el test
+   no use, para evitar UnnecessaryStubbingException.
+7. Las clases de test deben estar en el mismo paquete que la clase que prueban.
+8. Mantén los nombres de los métodos de test y agrega @DisplayName en español
+   describiendo el comportamiento.
+9. No cambies código de producción (src/main). Si algún test no se puede convertir sin
+   tocar src/main, no lo conviertas y explícame por qué.
+
+Dependencias:
+- Verifica que el pom.xml tenga org.mockito:mockito-junit-jupiter y
+  org.assertj:assertj-core con scope test (sin versión: las maneja el BOM de Quarkus).
+  Si faltan, agrégalas.
+
+Verificación:
+- Ejecuta ./mvnw test y corrige hasta que todos los tests pasen.
+
+Al terminar, dame una lista con:
+- los tests convertidos,
+- los que dejaste con @QuarkusTest y por qué,
+- cualquier problema que encontraste.
