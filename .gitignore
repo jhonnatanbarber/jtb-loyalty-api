@@ -44,5 +44,5 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 
-.env
 src/main/resources/config/privateKey.pem
+.claude/
