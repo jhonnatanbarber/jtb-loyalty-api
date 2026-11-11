@@ -10,6 +10,7 @@ import com.jtb.loyalty.domain.auth.request.LoginRequest;
 import com.jtb.loyalty.domain.auth.response.CurrentUserResponse;
 import com.jtb.loyalty.domain.auth.response.TokenResponse;
 import com.jtb.loyalty.shared.roles.Roles;
+import com.jtb.loyalty.shared.utils.Constants;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -41,7 +42,7 @@ public class AuthController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public TokenResponse login(
-            @Valid @NotNull(message = "El cuerpo de la solicitud es obligatorio") LoginRequest request) {
+            @Valid @NotNull(message = Constants.MESSAGE_VALIDATION_NOTNULL_REQUEST_AUTH) LoginRequest request) {
         return AuthMapper.toResponse(loginUseCase.execute(AuthMapper.toCommand(request)));
     }
 

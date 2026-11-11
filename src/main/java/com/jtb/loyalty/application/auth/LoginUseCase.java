@@ -6,6 +6,7 @@ import com.jtb.loyalty.domain.auth.exception.InvalidCredentialsException;
 import com.jtb.loyalty.domain.auth.repository.UserRepository;
 import com.jtb.loyalty.domain.auth.service.PasswordHasher;
 import com.jtb.loyalty.domain.user.model.User;
+import com.jtb.loyalty.shared.utils.Constants;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,6 @@ import java.util.Optional;
 @ApplicationScoped
 @Slf4j
 public class LoginUseCase {
-    private static final String TOKEN_TYPE = "Bearer";
 
     @Inject
     UserRepository userRepository;
@@ -56,6 +56,6 @@ public class LoginUseCase {
 
         String accessToken = tokenIssuer.issue(user);
         log.info("Inicio de sesión exitoso: usuario '{}' - perfil: ({})", user.getUsername(), user.getRole());
-        return new TokenView(accessToken, TOKEN_TYPE, tokenIssuer.expiresInSeconds());
+        return new TokenView(accessToken, Constants.TOKEN_TYPE, tokenIssuer.expiresInSeconds());
     }
 }
